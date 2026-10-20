@@ -36,7 +36,7 @@ export function EventCard({ event }: Props) {
       <Text style={styles.description}>{event.description}</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
    card: {

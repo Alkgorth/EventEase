@@ -1,11 +1,12 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Button, Text, TextInput, View } from "react-native";
+import { Button, Text, TextInput } from "react-native";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useState } from "react";
 
 import { registerUser } from "../storage/userStorage";
 import { commonStyles } from "../styles/commonStyles";
 import { User } from "../types";
+import { FormContainer } from "../components/FormContainer";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Register">;
 
@@ -50,7 +51,7 @@ export default function RegisterScreen({ navigation }: Props) {
     }
 
     return (
-        <View style={commonStyles.container}>
+        <FormContainer>
             <Text style={commonStyles.title}>Inscription</Text>
             <TextInput
                 style={commonStyles.input}
@@ -82,6 +83,6 @@ export default function RegisterScreen({ navigation }: Props) {
                 title="Déjà un compte ? Connectez-vous"
                 onPress={() => navigation.navigate("Login")}
             />
-        </View>
+        </FormContainer>
     );
 }

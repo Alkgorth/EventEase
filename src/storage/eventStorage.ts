@@ -3,6 +3,7 @@ import { EventItem } from "../types";
 
 const EVENT_KEY = "events";
 
+// Lit tous les événements enregistrés ; renvoie [] s'il n'y en a pas ou si la lecture échoue
 export async function getEvents(): Promise<EventItem[]> {
   try {
     const eventsJson = await AsyncStorage.getItem(EVENT_KEY);
@@ -12,6 +13,7 @@ export async function getEvents(): Promise<EventItem[]> {
   }
 }
 
+// Enregistre la liste complète des événements (elle remplace l'ancienne)
 export async function saveEvents(events: EventItem[]): Promise<void> {
   const json = JSON.stringify(events);
   await AsyncStorage.setItem(EVENT_KEY, json);

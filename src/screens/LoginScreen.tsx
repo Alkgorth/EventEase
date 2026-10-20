@@ -1,11 +1,12 @@
 // page de connexion pour les utilisateurs
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Button, Text, TextInput, View } from "react-native";
+import { Button, Text, TextInput } from "react-native";
 import { useState } from "react";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { loginUser } from "../storage/userStorage";
 import { commonStyles } from "../styles/commonStyles";
+import { FormContainer } from "../components/FormContainer";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
@@ -32,7 +33,7 @@ export default function LoginScreen({ navigation }: Props) {
     }
 
     return (
-        <View style={commonStyles.container}>
+        <FormContainer>
             <Text style={commonStyles.title}>Connexion</Text>
             <TextInput
                 style={commonStyles.input}
@@ -58,6 +59,6 @@ export default function LoginScreen({ navigation }: Props) {
                 title="Pas de compte ? Inscrivez-vous"
                 onPress={() => navigation.navigate("Register")}
             />
-        </View>
+        </FormContainer>
     );
 }
