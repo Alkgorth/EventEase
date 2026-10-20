@@ -1,20 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { AppNavigator } from './src/navigation/AppNavigator';
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+async function dumpStorage() {
+	const keys = await AsyncStorage.getAllKeys();
+	const entries = await AsyncStorage.multiGet(keys);
+	console.log("Contenu du stockage :", entries);
+}
+dumpStorage();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <>
+      <AppNavigator />
       <StatusBar style="auto" />
-    </View>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
