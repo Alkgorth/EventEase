@@ -52,7 +52,16 @@ export default function EventListScreen({ navigation }: Props) {
       <FlatList
         data={events}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <EventCard event={item} />}
+        renderItem={({ item }) => (
+          <EventCard
+            event={item}
+            onEdit={() =>
+              navigation.navigate(
+                "EventForm",
+                { eventId: item.id })}
+          />
+        )}
+
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <View style={styles.empty}>
@@ -74,30 +83,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background
   },
-  
+
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center"
   },
-  
+
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
     padding: 16
   },
-  
+
   list: {
     paddingHorizontal: 16,
     paddingBottom: 24,
     flexGrow: 1
   },
-  
+
   empty: {
     alignItems: "center",
     paddingVertical: 48
   },
-  
+
   emptyText: {
     textAlign: "center",
     color: colors.text,

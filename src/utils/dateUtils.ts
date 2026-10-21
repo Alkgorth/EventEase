@@ -30,3 +30,14 @@ export function formatDateInput(text: string): string {
 
     return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
 };
+
+export function isoToDateInput(isoString: string): string {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return "";
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth()).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+}

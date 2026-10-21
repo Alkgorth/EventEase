@@ -1,22 +1,39 @@
 // page ajout et modification d'un événement.
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Text, TextInput } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { commonStyles } from "../styles/commonStyles";
 import { FormContainer } from "../components/FormContainer";
-import { addEvent } from "../storage/eventStorage";
+import { addEvent, getEventById, updateEvent } from "../storage/eventStorage";
 import { EventItem } from "../types";
-import { formatDateInput, parseDateInput } from "../utils/dateUtils"
+import { formatDateInput, parseDateInput, isoToDateInput } from "../utils/dateUtils"
 
 type Props = NativeStackScreenProps<RootStackParamList, "EventForm">;
 
-export default function EventFormScreen({ navigation }: Props) {
+export default function EventFormScreen({ navigation, route }: Props) {
+    const eventId = route.params?.eventId;
+    const isEditing = eventId !== undefined;
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [date, setDate] = useState("");
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
+
+    const [participated, setParticipated] = useState(false);
+    useEffect(() => {
+        if (!eventId) return;
+        async function loadEvent() {
+            const event = await getEventById(eventId!);
+            if (event) {
+                setTitle(event.title);
+                setDescription(event.description);
+                setDate(isoToDateInput(event.date));
+                setParticipated(event.participated);
+            }
+        }
+        loadEvent();
+    }, [eventId]);
 
     async function handleSave() {
         if (saving) return;
@@ -25,6 +42,7 @@ export default function EventFormScreen({ navigation }: Props) {
         const trimmedDescription = description.trim();
         const isoDate = parseDateInput(date);
 
+        // 1. Validation des champs obligatoires
         if (!trimmedTitle) {
             setError("Veuillez remplir le titre.");
             return;
@@ -40,20 +58,24 @@ export default function EventFormScreen({ navigation }: Props) {
             return;
         }
 
-        // Création du nouvel événement conforme au modèle EventItem
-        const newEvent: EventItem = {
-            id: Date.now().toString(),
+        // 2. Préparation de l'objet événement (on garde l'id et le statut 'participated' en modification)
+        const eventData: EventItem = {
+            id: isEditing ? eventId : Date.now().toString(),
             title: trimmedTitle,
             description: trimmedDescription,
             date: isoDate,
-            participated: false,
+            participated: participated,
         };
 
-        setSaving(true)
+        setSaving(true);
 
-        // Enregistrement sécurisé avec try / catch
+        // 3. Enregistrement sécurisé
         try {
-            await addEvent(newEvent);
+            if (isEditing) {
+                await updateEvent(eventData);
+            } else {
+                await addEvent(eventData);
+            }
             // Retour à la liste : useFocusEffect sur EventListScreen rechargera les données automatiquement
             navigation.goBack();
         } catch {
@@ -64,7 +86,9 @@ export default function EventFormScreen({ navigation }: Props) {
 
     return (
         <FormContainer>
-            <Text style={commonStyles.title}>Ajouter un événement</Text>
+            <Text style={commonStyles.title}>
+                {isEditing ? "Modifier l'évènement" : "Ajouter un événement"}
+            </Text>
 
             <TextInput
                 style={commonStyles.input}
@@ -90,7 +114,7 @@ export default function EventFormScreen({ navigation }: Props) {
             {error !== "" && <Text style={commonStyles.errorText}>{error}</Text>}
 
             <Button
-                title={saving ? "Enregistrement..." : "Enregistrer l'événement"}
+                title={saving ? "Enregistrement..." : (isEditing ? "Mettre à jour" : "Enregistrer l'événement")}
                 onPress={handleSave}
                 disabled={saving}
             />

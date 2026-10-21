@@ -27,9 +27,27 @@ export async function addEvent(event: EventItem): Promise<void> {
   await saveEvents(updatedEvents);
 }
 
-export async function updateEvent(event: EventItem): Promise<void> {
-  // mise à jour de l'événement, utiliser .map()
-  
+// Met à jour un événement existant dans la liste
+export async function updateEvent(updatedEvent: EventItem): Promise<void> {
+  const events = await getEvents();
+  const updatedEvents = events.map((event) =>
+    event.id === updatedEvent.id ? updatedEvent : event
+  );
+  await saveEvents(updatedEvents);
+}
+
+// Récupère un événement précis grâce à son identifiant
+export async function getEventById(id: string): Promise<EventItem | null> {
+  const events = await getEvents();
+  const event = events.find((e) => e.id === id);
+  return event ?? null;
+}
+
+export async function deleteEvent(id: string): Promise<void> {
+  // suppression d'un événement avec la méthode .filter()
+  const events = await getEvents();
+  const remaininigEvents = events.filter((event) => event.id !== id);
+  await saveEvents(remaininigEvents);
 }
 
 /**

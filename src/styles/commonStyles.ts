@@ -25,4 +25,10 @@ export const commonStyles = StyleSheet.create({
 		color: "red",
 		marginBottom: 10,
 	},
+
+	actions: {
+		marginTop: 12,
+		flexDirection: "row",
+		justifyContent: "flex-end",
+	},
 });

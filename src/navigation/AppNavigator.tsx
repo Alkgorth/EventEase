@@ -13,7 +13,7 @@ export type RootStackParamList = {
     Login: undefined;
     Register: undefined;
     EventList: undefined;
-    EventForm: eventId? : string;
+    EventForm: {eventId? : string} | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

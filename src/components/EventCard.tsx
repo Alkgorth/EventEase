@@ -1,9 +1,11 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Button } from "react-native";
 import { EventItem } from "../types";
 import { colors } from "../styles/theme";
+import { commonStyles } from "../styles/commonStyles";
 
 type Props = {
   event: EventItem;
+  onEdit: () => void;
 };
 
 function formatDate(isoDate: string): string {
@@ -20,7 +22,7 @@ function formatDate(isoDate: string): string {
   });
 }
 
-export function EventCard({ event }: Props) {
+export function EventCard({ event, onEdit }: Props) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -34,12 +36,19 @@ export function EventCard({ event }: Props) {
 
       <Text style={styles.date}>{formatDate(event.date)}</Text>
       <Text style={styles.description}>{event.description}</Text>
+
+      <View style={commonStyles.actions}>
+        <Button
+          title="Modifier"
+          onPress={onEdit}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-   card: {
+  card: {
     backgroundColor: colors.cardBackground,
     borderRadius: 12,
     borderWidth: 1,
