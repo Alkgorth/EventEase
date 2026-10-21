@@ -6,6 +6,8 @@ import { commonStyles } from "../styles/commonStyles";
 type Props = {
   event: EventItem;
   onEdit: () => void;
+  onDelete: () => void;
+  onToggleParticipate: () => void;
 };
 
 function formatDate(isoDate: string): string {
@@ -22,7 +24,7 @@ function formatDate(isoDate: string): string {
   });
 }
 
-export function EventCard({ event, onEdit }: Props) {
+export function EventCard({ event, onEdit, onDelete, onToggleParticipate }: Props) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -39,8 +41,18 @@ export function EventCard({ event, onEdit }: Props) {
 
       <View style={commonStyles.actions}>
         <Button
+          title={event.participated ? "Se désinscrire" : "Participer"}
+          color={event.participated ? '#6b7280' : colors.secondary}
+          onPress={onToggleParticipate}
+        />
+        <Button
           title="Modifier"
           onPress={onEdit}
+        />
+        <Button
+          title="Supprimer"
+          onPress={onDelete}
+          color="#dc2626"
         />
       </View>
     </View>

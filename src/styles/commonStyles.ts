@@ -30,5 +30,7 @@ export const commonStyles = StyleSheet.create({
 		marginTop: 12,
 		flexDirection: "row",
 		justifyContent: "flex-end",
+		gap: 8,
+		flexWrap: "wrap",
 	},
 });

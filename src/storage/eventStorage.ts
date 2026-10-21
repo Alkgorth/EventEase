@@ -50,6 +50,15 @@ export async function deleteEvent(id: string): Promise<void> {
   await saveEvents(remaininigEvents);
 }
 
+// Inverse l'état de participation d'un événement (participe <-> ne participe pas)
+export async function toggleParticipate(id: string): Promise<void> {
+  const events = await getEvents();
+  const updatedEvents = events.map((event) =>
+    event.id === id ? { ...event, participated: !event.participated } : event
+  );
+  await saveEvents(updatedEvents);
+}
+
 /**
  * Insère des événements d'exemple dans le stockage.
  * Pratique pour tester immédiatement l'affichage de la liste (étape 2.4)

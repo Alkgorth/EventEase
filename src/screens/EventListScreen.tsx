@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Button, FlatList, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, Button, FlatList, StyleSheet, Text, View } from "react-native";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { EventCard } from "../components/EventCard";
-import { getEvents, seedSampleEvents } from "../storage/eventStorage";
+import { getEvents, seedSampleEvents, deleteEvent, toggleParticipate } from "../storage/eventStorage";
 import { logoutUser } from "../storage/userStorage";
 import { colors } from "../styles/theme";
 import { EventItem } from "../types";
@@ -34,6 +34,35 @@ export default function EventListScreen({ navigation }: Props) {
     setEvents(await seedSampleEvents());
   }
 
+  async function handleDelete(id: string) {
+    // Fonction qui exécute la suppression et recharge la liste
+    async function performDelete() {
+      await deleteEvent(id);
+      setEvents(await getEvents());
+    }
+    // Sur le Web, on utilise la boîte de dialogue standard du navigateur
+    if (Platform.OS === "web") {
+      if (window.confirm("Voulez-vous vraiment supprimer cet événement ?")) {
+        await performDelete();
+      }
+    } else {
+      // Sur mobile (iOS et Android), on utilise la boîte de dialogue native Alert
+      Alert.alert(
+        "Confirmation",
+        "Voulez-vous vraiment supprimer cet événement ?",
+        [
+          { text: "Annuler", style: "cancel" },
+          { text: "Supprimer", style: "destructive", onPress: performDelete },
+        ]
+      );
+    }
+  }
+
+  async function handleToggleParticipated(id: string) {
+    await toggleParticipate(id);
+    setEvents(await getEvents());
+  }
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -58,7 +87,11 @@ export default function EventListScreen({ navigation }: Props) {
             onEdit={() =>
               navigation.navigate(
                 "EventForm",
-                { eventId: item.id })}
+                { eventId: item.id }
+              )
+            }
+            onDelete={() => handleDelete(item.id)}
+            onToggleParticipate={() => handleToggleParticipated(item.id)}
           />
         )}
 
