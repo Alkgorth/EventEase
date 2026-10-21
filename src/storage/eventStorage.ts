@@ -19,6 +19,14 @@ export async function saveEvents(events: EventItem[]): Promise<void> {
   await AsyncStorage.setItem(EVENT_KEY, json);
 }
 
+// Ajoute un nouvel événement à la liste existante
+export async function addEvent(event: EventItem): Promise<void> {
+  const events = await getEvents();
+  // On crée un nouveau tableau avec tous les anciens événements (...events) plus le nouveau
+  const updatedEvents = [...events, event];
+  await saveEvents(updatedEvents);
+}
+
 /**
  * Insère des événements d'exemple dans le stockage.
  * Pratique pour tester immédiatement l'affichage de la liste (étape 2.4)

@@ -74,7 +74,7 @@ export default function RegisterScreen({ navigation }: Props) {
                 value={password}
                 onChangeText={setPassword}
             />
-            {error !== "" && <Text>{error}</Text>}
+            {error !== "" && <Text style={commonStyles.errorText}>{error}</Text>}
             <Button
                 title="S'inscrire"
                 onPress={handleRegister}

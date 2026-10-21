@@ -50,7 +50,7 @@ export default function LoginScreen({ navigation }: Props) {
                 value={password}
                 onChangeText={setPassword}
             />
-            {error !== "" && <Text>{error}</Text>}
+            {error !== "" && <Text style={commonStyles.errorText}>{error}</Text>}
             <Button
                 title="Se connecter"
                 onPress={handleLogin}
