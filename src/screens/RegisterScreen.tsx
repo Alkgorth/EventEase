@@ -1,10 +1,12 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Button, Text, TextInput } from "react-native";
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { useState } from "react";
+import Feather from "@expo/vector-icons/Feather";
 
 import { registerUser } from "../storage/userStorage";
 import { commonStyles } from "../styles/commonStyles";
+import { colors, fonts } from "../styles/theme";
 import { User } from "../types";
 import { FormContainer } from "../components/FormContainer";
 
@@ -52,37 +54,119 @@ export default function RegisterScreen({ navigation }: Props) {
 
     return (
         <FormContainer>
-            <Text style={commonStyles.title}>Inscription</Text>
+            {/* Bouton retour en haut à gauche */}
+            <TouchableOpacity
+                onPress={() => navigation.navigate("Login")}
+                style={styles.backButton}
+                activeOpacity={0.7}
+                accessibilityLabel="Retour à la connexion"
+            >
+                <Feather name="arrow-left" size={24} color={colors.primary} />
+            </TouchableOpacity>
+
+            {/* Logo officiel dans son encart dédié */}
+            <View style={commonStyles.logoCard}>
+                <Image
+                    source={require("../../assets/images/logo_reference.png")}
+                    style={commonStyles.logoImage}
+                    resizeMode="contain"
+                />
+            </View>
+
+            {/* Titre et sous-titre alignés à gauche */}
+            <Text style={commonStyles.authTitle}>Faisons connaissance</Text>
+            <Text style={commonStyles.authSubtitle}>
+                Un compte, et de nouveaux moments à partager.
+            </Text>
+
+            {/* Champ Nom complet */}
             <TextInput
                 style={commonStyles.input}
-                placeholder="Prénom"
+                placeholder="Nom complet"
+                placeholderTextColor={colors.textMuted}
                 value={name}
                 onChangeText={setName}
             />
-            <TextInput
-                style={commonStyles.input}
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-            />
-            <TextInput
-                style={commonStyles.input}
-                placeholder="Mot de passe"
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-            />
+
+            {/* Champ Adresse e-mail avec icône enveloppe */}
+            <View style={commonStyles.inputWithIcon}>
+                <TextInput
+                    style={commonStyles.inputField}
+                    placeholder="Adresse e-mail"
+                    placeholderTextColor={colors.textMuted}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                />
+                <Feather name="mail" size={20} color={colors.primary} style={commonStyles.inputIcon} />
+            </View>
+
+            {/* Champ Mot de passe avec icône oeil */}
+            <View style={commonStyles.inputWithIcon}>
+                <TextInput
+                    style={commonStyles.inputField}
+                    placeholder="Mot de passe"
+                    placeholderTextColor={colors.textMuted}
+                    secureTextEntry
+                    value={password}
+                    onChangeText={setPassword}
+                />
+                {/* NOTE: Rendre l'icône oeil active pour afficher/masquer le mot de passe dès que nous aurons un moment */}
+                <Feather name="eye-off" size={20} color={colors.primary} style={commonStyles.inputIcon} />
+            </View>
+
+            <Text style={styles.passwordHint}>
+                6 caractères minimum pour votre mot de passe.
+            </Text>
+
             {error !== "" && <Text style={commonStyles.errorText}>{error}</Text>}
-            <Button
-                title="S'inscrire"
+
+            {/* Bouton principal de création de compte */}
+            <TouchableOpacity
+                style={commonStyles.primaryButton}
                 onPress={handleRegister}
-            />
-            <Button
-                title="Déjà un compte ? Connectez-vous"
+                activeOpacity={0.8}
+            >
+                <Text style={commonStyles.primaryButtonText}>Créer mon compte</Text>
+            </TouchableOpacity>
+
+            {/* Lien bicolore vers la connexion */}
+            <TouchableOpacity
+                style={commonStyles.linkContainer}
                 onPress={() => navigation.navigate("Login")}
-            />
+                activeOpacity={0.7}
+            >
+                <Text style={commonStyles.linkText}>
+                    Déjà membre ?{" "}
+                    <Text style={commonStyles.linkHighlight}>Se connecter</Text>
+                </Text>
+            </TouchableOpacity>
+
+            {/* Encadré d'information : Compte de démonstration local */}
+            <View style={commonStyles.demoCard}>
+                <Feather name="smartphone" size={20} color={colors.primary} />
+                <Text style={commonStyles.demoCardText}>
+                    Compte de démonstration local, sans validation par e-mail ni backend réel.
+                </Text>
+            </View>
         </FormContainer>
     );
 }
+
+const styles = StyleSheet.create({
+    backButton: {
+        alignSelf: "flex-start",
+        paddingVertical: 8,
+        paddingRight: 16,
+        marginBottom: 8,
+    },
+    passwordHint: {
+        fontFamily: fonts.regular,
+        fontSize: 12,
+        color: colors.textMuted,
+        alignSelf: "flex-start",
+        marginTop: -8,
+        marginBottom: 16,
+    },
+});

@@ -1,27 +1,51 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, Platform, Button, FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Feather from "@expo/vector-icons/Feather";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { EventCard } from "../components/EventCard";
-import { getEvents, seedSampleEvents, deleteEvent, toggleParticipate } from "../storage/eventStorage";
-import { logoutUser } from "../storage/userStorage";
-import { colors } from "../styles/theme";
-import { EventItem } from "../types";
+import { deleteEvent, getEvents, seedSampleEvents, toggleParticipate } from "../storage/eventStorage";
+import { getCurrentUser, logoutUser } from "../storage/userStorage";
+import { borderRadius, colors, fonts } from "../styles/theme";
+import { EventItem, User } from "../types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "EventList">;
 
 export default function EventListScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
-      async function loadEvents() {
-        setEvents(await getEvents());
-        setLoading(false);
+      async function loadData() {
+        try {
+          const [user, storedEvents] = await Promise.all([
+            getCurrentUser(),
+            getEvents(),
+          ]);
+          setCurrentUser(user);
+          setEvents(storedEvents);
+        } catch {
+          setEvents(await getEvents());
+        } finally {
+          setLoading(false);
+        }
       }
-      loadEvents();
+      loadData();
     }, [])
   );
 
@@ -35,18 +59,16 @@ export default function EventListScreen({ navigation }: Props) {
   }
 
   async function handleDelete(id: string) {
-    // Fonction qui exécute la suppression et recharge la liste
     async function performDelete() {
       await deleteEvent(id);
       setEvents(await getEvents());
     }
-    // Sur le Web, on utilise la boîte de dialogue standard du navigateur
+
     if (Platform.OS === "web") {
       if (window.confirm("Voulez-vous vraiment supprimer cet événement ?")) {
         await performDelete();
       }
     } else {
-      // Sur mobile (iOS et Android), on utilise la boîte de dialogue native Alert
       Alert.alert(
         "Confirmation",
         "Voulez-vous vraiment supprimer cet événement ?",
@@ -72,10 +94,39 @@ export default function EventListScreen({ navigation }: Props) {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.actions}>
-        <Button title="Ajouter un événement" onPress={() => navigation.navigate("EventForm")} />
-        <Button title="Se déconnecter" onPress={handleLogout} />
+    <View style={[styles.container, { paddingTop: Math.max(insets.top, 12) }]}>
+      {/* Ligne 1 : Logo miniature et Titre EventEase alignés à gauche */}
+      <View style={styles.brandRow}>
+        <Image
+          source={require("../../assets/images/miniature_EventEase2.png")}
+          style={styles.logoIcon}
+          resizeMode="contain"
+        />
+        <Text style={styles.brandTitle}>
+          Event<Text style={styles.brandTitleEase}>Ease</Text>
+        </Text>
+      </View>
+
+      {/* Ligne 2 : Boutons d'action centrés en dessous */}
+      <View style={styles.topActions}>
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={() => navigation.navigate("EventForm")}
+          activeOpacity={0.8}
+        >
+          <Feather name="plus" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+          <Text style={styles.createButtonText}>Ajouter un événement</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={handleLogout}
+          activeOpacity={0.8}
+          accessibilityLabel="Se déconnecter"
+        >
+          <Feather name="log-out" size={15} color={colors.danger} style={{ marginRight: 6 }} />
+          <Text style={styles.logoutButtonText}>Déconnexion</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -85,25 +136,48 @@ export default function EventListScreen({ navigation }: Props) {
           <EventCard
             event={item}
             onEdit={() =>
-              navigation.navigate(
-                "EventForm",
-                { eventId: item.id }
-              )
+              navigation.navigate("EventForm", { eventId: item.id })
             }
             onDelete={() => handleDelete(item.id)}
             onToggleParticipate={() => handleToggleParticipated(item.id)}
           />
         )}
-
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View style={styles.headerSection}>
+            {/* Salutation personnalisée avec le prénom de l'utilisateur */}
+            <Text style={styles.userGreeting}>
+              BONJOUR {(currentUser?.name || "VOUS").toUpperCase()}
+            </Text>
+
+            {/* Titre chaleureux conforme à la maquette */}
+            <Text style={styles.mainTitle}>On se retrouve bientôt ?</Text>
+
+            {/* En-tête de section : Titre et compteur d'événements */}
+            <View style={styles.sectionRow}>
+              <Text style={styles.sectionTitle}>À l'affiche</Text>
+              <Text style={styles.sectionCount}>
+                {events.length} événement{events.length > 1 ? "s" : ""}
+              </Text>
+            </View>
+          </View>
+        }
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>Aucun événement pour le moment.</Text>
-            <Text style={styles.emptyText}>
-              Appuyez sur « Ajouter un événement » pour en créer un.
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>📅</Text>
+            <Text style={styles.emptyTitle}>Aucun événement pour le moment</Text>
+            <Text style={styles.emptySubtitle}>
+              Appuyez sur « Ajouter un événement » ci-dessus pour planifier votre premier événement.
             </Text>
             {/* TODO étape 4.2 : supprimer ce bouton de test */}
-            <Button title="Charger des exemples de test" onPress={handleSeed} />
+            <TouchableOpacity
+              style={styles.seedButton}
+              onPress={handleSeed}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.seedButtonText}>Charger des exemples de test</Text>
+            </TouchableOpacity>
           </View>
         }
       />
@@ -114,35 +188,170 @@ export default function EventListScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background
+    backgroundColor: colors.background,
   },
 
   center: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    backgroundColor: colors.background,
   },
 
-  actions: {
+  // Ligne 1 : Marque alignée à gauche
+  brandRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 4,
+  },
+
+  logoIcon: {
+    width: 34,
+    height: 34,
+    marginRight: 10,
+  },
+
+  brandTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 26,
+    color: colors.primary, // Sarcelle #125B50
+  },
+
+  brandTitleEase: {
+    color: colors.secondary, // Corail #FF735C
+  },
+
+  // Ligne 2 : Boutons d'actions centrés en dessous
+  topActions: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 16,
+  },
+
+  createButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: borderRadius.full,
+    elevation: 2,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+
+  createButtonText: {
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    color: "#FFFFFF",
+  },
+
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: borderRadius.full,
+    backgroundColor: "#FEE2E2",
+  },
+
+  logoutButtonText: {
+    fontFamily: fonts.semiBold,
+    fontSize: 14,
+    color: colors.danger,
   },
 
   list: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
-    flexGrow: 1
+    paddingHorizontal: 20,
+    paddingBottom: 32,
   },
 
-  empty: {
-    alignItems: "center",
-    paddingVertical: 48
+  headerSection: {
+    marginTop: 8,
+    marginBottom: 16,
   },
 
-  emptyText: {
-    textAlign: "center",
+  userGreeting: {
+    fontFamily: fonts.bold,
+    fontSize: 13,
+    color: colors.textMuted,
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+
+  mainTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 28,
     color: colors.text,
-    marginBottom: 8
+    marginBottom: 20,
+  },
+
+  sectionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginBottom: 6,
+  },
+
+  sectionTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 22,
+    color: colors.text,
+  },
+
+  sectionCount: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.textMuted,
+  },
+
+  emptyContainer: {
+    alignItems: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+  },
+
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+
+  emptyTitle: {
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    color: colors.text,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+
+  emptySubtitle: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.textMuted,
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+
+  seedButton: {
+    backgroundColor: "#EBF3EF",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: borderRadius.medium,
+  },
+
+  seedButtonText: {
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    color: colors.primary,
   },
 });

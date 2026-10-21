@@ -1,6 +1,7 @@
 // src/components/FormContainer.tsx
 import { ReactNode } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from "react-native";
+import { colors } from "../styles/theme";
 
 type Props = {
   children: ReactNode;
@@ -16,6 +17,7 @@ export function FormContainer({ children }: Props) {
       <ScrollView
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
         {children}
       </ScrollView>
@@ -24,6 +26,11 @@ export function FormContainer({ children }: Props) {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  content: { flexGrow: 1, alignItems: "center", justifyContent: "center" },
+  flex: { flex: 1, backgroundColor: colors.background },
+  content: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
 });
