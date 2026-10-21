@@ -16,8 +16,11 @@ export default function EventFormScreen({ navigation }: Props) {
     const [description, setDescription] = useState("");
     const [date, setDate] = useState("");
     const [error, setError] = useState("");
+    const [saving, setSaving] = useState(false);
 
     async function handleSave() {
+        if (saving) return;
+
         const trimmedTitle = title.trim();
         const trimmedDescription = description.trim();
         const isoDate = parseDateInput(date);
@@ -46,6 +49,8 @@ export default function EventFormScreen({ navigation }: Props) {
             participated: false,
         };
 
+        setSaving(true)
+
         // Enregistrement sécurisé avec try / catch
         try {
             await addEvent(newEvent);
@@ -53,6 +58,7 @@ export default function EventFormScreen({ navigation }: Props) {
             navigation.goBack();
         } catch {
             setError("Une erreur est survenue lors de l'enregistrement.");
+            setSaving(false);
         }
     }
 
@@ -84,8 +90,9 @@ export default function EventFormScreen({ navigation }: Props) {
             {error !== "" && <Text style={commonStyles.errorText}>{error}</Text>}
 
             <Button
-                title="Enregistrer l'événement"
+                title={saving ? "Enregistrement..." : "Enregistrer l'événement"}
                 onPress={handleSave}
+                disabled={saving}
             />
         </FormContainer>
     );

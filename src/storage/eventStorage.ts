@@ -27,6 +27,11 @@ export async function addEvent(event: EventItem): Promise<void> {
   await saveEvents(updatedEvents);
 }
 
+export async function updateEvent(event: EventItem): Promise<void> {
+  // mise à jour de l'événement, utiliser .map()
+  
+}
+
 /**
  * Insère des événements d'exemple dans le stockage.
  * Pratique pour tester immédiatement l'affichage de la liste (étape 2.4)

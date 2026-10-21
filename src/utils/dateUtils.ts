@@ -16,16 +16,17 @@ export function parseDateInput(text: string): string | null {
         date.getFullYear() === year;
 
     return isReal ? date.toISOString() : null;
-}
+};
 
 export function formatDateInput(text: string): string {
-    const cleaned = text.replace(/\D/g, "");
+    const digits = text.replace(/\D/g, "").slice(0, 8);
 
-    const numbers = cleaned.slice(0, 8);
-
-    if (numbers.length <= 4) {
-        return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+    if (digits.length <= 2) {
+        return digits;
+    }
+    if (digits.length <= 4) {
+        return `${digits.slice(0, 2)}/${digits.slice(2)}`;
     }
 
-    return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
-}
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+};
