@@ -1,3 +1,4 @@
+// src\screens\RegisterScreen.tsx
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { RootStackParamList } from "../navigation/AppNavigator";
@@ -82,7 +83,7 @@ export default function RegisterScreen({ navigation }: Props) {
             {/* Champ Nom complet */}
             <TextInput
                 style={commonStyles.input}
-                placeholder="Nom complet"
+                placeholder="Prénom"
                 placeholderTextColor={colors.textMuted}
                 value={name}
                 onChangeText={setName}

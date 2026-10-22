@@ -1,5 +1,4 @@
-// page de connexion pour les utilisateurs
-
+// src\screens\LoginScreen.tsx
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useState } from "react";

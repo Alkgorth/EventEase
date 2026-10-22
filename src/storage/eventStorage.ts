@@ -1,3 +1,4 @@
+// src\storage\eventStorage.ts
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { EventItem } from "../types";
 
@@ -43,11 +44,11 @@ export async function getEventById(id: string): Promise<EventItem | null> {
   return event ?? null;
 }
 
+// Suppression d'un événement
 export async function deleteEvent(id: string): Promise<void> {
-  // suppression d'un événement avec la méthode .filter()
   const events = await getEvents();
-  const remaininigEvents = events.filter((event) => event.id !== id);
-  await saveEvents(remaininigEvents);
+  const remainingEvents = events.filter((event) => event.id !== id);
+  await saveEvents(remainingEvents);
 }
 
 // Inverse l'état de participation d'un événement (participe <-> ne participe pas)

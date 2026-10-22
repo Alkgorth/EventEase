@@ -1,12 +1,11 @@
+// src\screens\EventListScreen.tsx
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { EventCard } from "../components/EventCard";
+import { DeleteModal } from "../components/DeleteModal";
 import { deleteEvent, getEvents, seedSampleEvents, toggleParticipate } from "../storage/eventStorage";
 import { getCurrentUser, logoutUser } from "../storage/userStorage";
 import { borderRadius, colors, fonts } from "../styles/theme";
@@ -28,6 +28,7 @@ export default function EventListScreen({ navigation }: Props) {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [eventToDelete, setEventToDelete] = useState<EventItem | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -58,26 +59,15 @@ export default function EventListScreen({ navigation }: Props) {
     setEvents(await seedSampleEvents());
   }
 
-  async function handleDelete(id: string) {
-    async function performDelete() {
-      await deleteEvent(id);
-      setEvents(await getEvents());
-    }
+  function handleDeleteClick(item: EventItem) {
+    setEventToDelete(item);
+  }
 
-    if (Platform.OS === "web") {
-      if (window.confirm("Voulez-vous vraiment supprimer cet événement ?")) {
-        await performDelete();
-      }
-    } else {
-      Alert.alert(
-        "Confirmation",
-        "Voulez-vous vraiment supprimer cet événement ?",
-        [
-          { text: "Annuler", style: "cancel" },
-          { text: "Supprimer", style: "destructive", onPress: performDelete },
-        ]
-      );
-    }
+  async function handleConfirmDelete() {
+    if (!eventToDelete) return;
+    await deleteEvent(eventToDelete.id);
+    setEventToDelete(null);
+    setEvents(await getEvents());
   }
 
   async function handleToggleParticipated(id: string) {
@@ -138,7 +128,7 @@ export default function EventListScreen({ navigation }: Props) {
             onEdit={() =>
               navigation.navigate("EventForm", { eventId: item.id })
             }
-            onDelete={() => handleDelete(item.id)}
+            onDelete={() => handleDeleteClick(item)}
             onToggleParticipate={() => handleToggleParticipated(item.id)}
           />
         )}
@@ -156,7 +146,7 @@ export default function EventListScreen({ navigation }: Props) {
 
             {/* En-tête de section : Titre et compteur d'événements */}
             <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>À l'affiche</Text>
+              <Text style={styles.sectionTitle}>À l{"'"}affiche</Text>
               <Text style={styles.sectionCount}>
                 {events.length} événement{events.length > 1 ? "s" : ""}
               </Text>
@@ -180,6 +170,15 @@ export default function EventListScreen({ navigation }: Props) {
             </TouchableOpacity>
           </View>
         }
+      />
+
+      {/* Modale de confirmation de suppression personnalisée */}
+      <DeleteModal
+        visible={eventToDelete !== null}
+        eventTitle={eventToDelete?.title || ""}
+        eventDate={eventToDelete?.date}
+        onCancel={() => setEventToDelete(null)}
+        onConfirm={handleConfirmDelete}
       />
     </View>
   );

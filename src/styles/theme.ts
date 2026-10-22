@@ -1,3 +1,4 @@
+// src\styles\theme.ts
 // Palette officielle de la charte graphique EventEase
 export const palette = {
   sarcelle: '#125B50',

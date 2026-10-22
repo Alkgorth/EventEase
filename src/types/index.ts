@@ -1,3 +1,4 @@
+// src\types\index.ts
 export interface EventItem {
 	id: string;
 	title: string;

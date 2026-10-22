@@ -1,3 +1,4 @@
+// src\styles\commonStyles.ts
 import { StyleSheet } from "react-native";
 import { borderRadius, colors, fonts, spacing } from "./theme";
 
