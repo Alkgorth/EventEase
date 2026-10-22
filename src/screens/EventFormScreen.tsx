@@ -10,6 +10,7 @@ import { commonStyles } from "../styles/commonStyles";
 import { borderRadius, colors, fonts } from "../styles/theme";
 import { FormContainer } from "../components/FormContainer";
 import { DeleteModal } from "../components/DeleteModal";
+import { CalendarModal } from "../components/CalendarModal";
 import { addEvent, deleteEvent, getEventById, updateEvent } from "../storage/eventStorage";
 import { EventItem } from "../types";
 import { formatDateInput, parseDateInput, isoToDateInput } from "../utils/dateUtils";
@@ -30,6 +31,7 @@ export default function EventFormScreen({ navigation, route }: Props) {
     const [loaded, setLoaded] = useState(!isEditing);
     const [participated, setParticipated] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showCalendarModal, setShowCalendarModal] = useState(false);
 
     useEffect(() => {
         if (!eventId) return;
@@ -189,7 +191,7 @@ export default function EventFormScreen({ navigation, route }: Props) {
                 onChangeText={setDescription}
             />
 
-            {/* Champ 3 : Date au format JJ/MM/AAAA avec icône calendrier */}
+            {/* Champ 3 : Date au format JJ/MM/AAAA avec icône calendrier cliquable */}
             <View style={commonStyles.inputWithIcon}>
                 <TextInput
                     style={commonStyles.inputField}
@@ -200,7 +202,13 @@ export default function EventFormScreen({ navigation, route }: Props) {
                     value={date}
                     onChangeText={(text) => setDate(formatDateInput(text))}
                 />
-                <Feather name="calendar" size={20} color={colors.primary} style={commonStyles.inputIcon} />
+                <TouchableOpacity
+                    onPress={() => setShowCalendarModal(true)}
+                    activeOpacity={0.7}
+                    accessibilityLabel="Ouvrir le calendrier"
+                >
+                    <Feather name="calendar" size={20} color={colors.primary} style={commonStyles.inputIcon} />
+                </TouchableOpacity>
             </View>
 
             {error !== "" && <Text style={commonStyles.errorText}>{error}</Text>}
@@ -249,6 +257,17 @@ export default function EventFormScreen({ navigation, route }: Props) {
                 eventDate={parseDateInput(date) || undefined}
                 onCancel={() => setShowDeleteModal(false)}
                 onConfirm={handleConfirmDelete}
+            />
+
+            {/* Modale de sélection de date interactive avec react-native-calendars */}
+            <CalendarModal
+                visible={showCalendarModal}
+                currentDate={date}
+                onSelectDate={(formattedDate) => {
+                    setDate(formattedDate);
+                    setError("");
+                }}
+                onClose={() => setShowCalendarModal(false)}
             />
         </FormContainer>
     );
