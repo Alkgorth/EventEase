@@ -16,7 +16,7 @@ import Feather from "@expo/vector-icons/Feather";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { EventCard } from "../components/EventCard";
 import { DeleteModal } from "../components/DeleteModal";
-import { deleteEvent, getEvents, seedSampleEvents, toggleParticipate } from "../storage/eventStorage";
+import { deleteEvent, getEvents, toggleParticipate } from "../storage/eventStorage";
 import { getCurrentUser, logoutUser } from "../storage/userStorage";
 import { borderRadius, colors, fonts } from "../styles/theme";
 import { EventItem, User } from "../types";
@@ -53,10 +53,6 @@ export default function EventListScreen({ navigation }: Props) {
   async function handleLogout() {
     await logoutUser();
     navigation.replace("Login");
-  }
-
-  async function handleSeed() {
-    setEvents(await seedSampleEvents());
   }
 
   function handleDeleteClick(item: EventItem) {
@@ -160,14 +156,6 @@ export default function EventListScreen({ navigation }: Props) {
             <Text style={styles.emptySubtitle}>
               Appuyez sur « Ajouter un événement » ci-dessus pour planifier votre premier événement.
             </Text>
-            {/* TODO étape 4.2 : supprimer ce bouton de test */}
-            <TouchableOpacity
-              style={styles.seedButton}
-              onPress={handleSeed}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.seedButtonText}>Charger des exemples de test</Text>
-            </TouchableOpacity>
           </View>
         }
       />
@@ -338,19 +326,5 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: "center",
     lineHeight: 20,
-    marginBottom: 20,
-  },
-
-  seedButton: {
-    backgroundColor: "#EBF3EF",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: borderRadius.medium,
-  },
-
-  seedButtonText: {
-    fontFamily: fonts.bold,
-    fontSize: 14,
-    color: colors.primary,
   },
 });

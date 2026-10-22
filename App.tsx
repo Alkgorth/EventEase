@@ -9,14 +9,6 @@ import {
 } from '@expo-google-fonts/nunito';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { colors } from './src/styles/theme';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-async function dumpStorage() {
-  const keys = await AsyncStorage.getAllKeys();
-  const entries = await AsyncStorage.multiGet(keys);
-  console.log("Contenu du stockage :", entries);
-}
-dumpStorage();
 
 export default function App() {
   // Chargement des polices Nunito au démarrage de l'application
