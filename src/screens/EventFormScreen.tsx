@@ -1,7 +1,7 @@
 // src/screens/EventFormScreen.tsx
 
 import { useState, useEffect } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
@@ -113,6 +113,30 @@ export default function EventFormScreen({ navigation, route }: Props) {
         }
     }
 
+    if (isEditing && !loaded && !error) {
+        return (
+            <FormContainer
+                contentContainerStyle={[
+                    styles.contentPadding,
+                    { paddingTop: Math.max(insets.top, 16) },
+                ]}
+            >
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={styles.backButton}
+                    activeOpacity={0.7}
+                    accessibilityLabel="Retour"
+                >
+                    <Feather name="arrow-left" size={24} color={colors.primary} />
+                    <Text style={styles.headerTitle}>Modifier l{"'"}événement</Text>
+                </TouchableOpacity>
+                <View style={styles.loadingCenter}>
+                    <ActivityIndicator size="large" color={colors.primary} />
+                </View>
+            </FormContainer>
+        );
+    }
+
     return (
         <FormContainer
             contentContainerStyle={[
@@ -183,7 +207,10 @@ export default function EventFormScreen({ navigation, route }: Props) {
 
             {/* Bouton principal de création / mise à jour */}
             <TouchableOpacity
-                style={commonStyles.primaryButton}
+                style={[
+                    commonStyles.primaryButton,
+                    (saving || !loaded) && { opacity: 0.5 },
+                ]}
                 onPress={handleSave}
                 disabled={saving || !loaded}
                 activeOpacity={0.8}
@@ -197,12 +224,12 @@ export default function EventFormScreen({ navigation, route }: Props) {
                 </Text>
             </TouchableOpacity>
 
-            {/* Bouton Supprimer l'événement (visible uniquement en mode modification) */}
-            {isEditing && (
+            {/* Bouton Supprimer l'événement (visible uniquement en mode modification si l'événement existe) */}
+            {isEditing && loaded && (
                 <TouchableOpacity
                     style={styles.deleteButton}
                     onPress={() => setShowDeleteModal(true)}
-                    disabled={saving || !loaded}
+                    disabled={saving}
                     activeOpacity={0.8}
                 >
                     <Feather name="trash-2" size={16} color={colors.danger} style={{ marginRight: 8 }} />
@@ -247,6 +274,11 @@ const styles = StyleSheet.create({
         height: 110,
         textAlignVertical: "top",
         paddingTop: 14,
+    },
+    loadingCenter: {
+        paddingVertical: 60,
+        alignItems: "center",
+        justifyContent: "center",
     },
     footerNotice: {
         fontFamily: fonts.regular,

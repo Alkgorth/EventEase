@@ -4,11 +4,28 @@ import { EventItem } from "../types";
 
 const EVENT_KEY = "events";
 
-// Lit tous les événements enregistrés ; renvoie [] s'il n'y en a pas ou si la lecture échoue
+// Lit tous les événements enregistrés, triés par ordre chronologique (du plus proche au plus lointain).
+// Renvoie [] s'il n'y en a pas ou si la lecture échoue.
 export async function getEvents(): Promise<EventItem[]> {
   try {
     const eventsJson = await AsyncStorage.getItem(EVENT_KEY);
-    return eventsJson === null ? [] : JSON.parse(eventsJson);
+    if (eventsJson === null) {
+      return [];
+    }
+    const events: EventItem[] = JSON.parse(eventsJson);
+
+    // Tri chronologique : comparaison des timestamps en millisecondes
+    return events.sort((a, b) => {
+      const timeA = new Date(a.date).getTime();
+      const timeB = new Date(b.date).getTime();
+
+      // Sécurité si une date était corrompue
+      if (isNaN(timeA)) return 1;
+      if (isNaN(timeB)) return -1;
+
+      // Soustraction : résultat négatif si A est avant B (A arrive en premier)
+      return timeA - timeB;
+    });
   } catch {
     return [];
   }
