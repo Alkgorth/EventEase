@@ -4,25 +4,15 @@
     "slug": "EventEase",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo_reference.png",
+    "icon": "./assets/images/logo_reference-SplashScreen.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/images/logo_reference.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F4F1DE"
-    },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#F4F1DE",
-        "foregroundImage": "./assets/images/logo_reference.png"
-      },
-      "splash": {
-        "image": "./assets/images/logo_reference-SplashScreen.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#F4F1DE"
+        "foregroundImage": "./assets/images/logo_reference-SplashScreen.png"
       },
       "predictiveBackGestureEnabled": false
     },
