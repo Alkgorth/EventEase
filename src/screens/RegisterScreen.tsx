@@ -17,6 +17,7 @@ export default function RegisterScreen({ navigation }: Props) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
     async function handleRegister() {
@@ -103,18 +104,28 @@ export default function RegisterScreen({ navigation }: Props) {
                 <Feather name="mail" size={20} color={colors.primary} style={commonStyles.inputIcon} />
             </View>
 
-            {/* Champ Mot de passe avec icône oeil */}
+            {/* Champ Mot de passe avec icône oeil interactif */}
             <View style={commonStyles.inputWithIcon}>
                 <TextInput
                     style={commonStyles.inputField}
                     placeholder="Mot de passe"
                     placeholderTextColor={colors.textMuted}
-                    secureTextEntry
+                    secureTextEntry={!showPassword}
                     value={password}
                     onChangeText={setPassword}
                 />
-                {/* NOTE: Rendre l'icône oeil active pour afficher/masquer le mot de passe dès que nous aurons un moment */}
-                <Feather name="eye-off" size={20} color={colors.primary} style={commonStyles.inputIcon} />
+                <TouchableOpacity
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    activeOpacity={0.7}
+                    accessibilityLabel={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                >
+                    <Feather
+                        name={showPassword ? "eye" : "eye-off"}
+                        size={20}
+                        color={colors.primary}
+                        style={commonStyles.inputIcon}
+                    />
+                </TouchableOpacity>
             </View>
 
             <Text style={styles.passwordHint}>
